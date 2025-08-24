@@ -43,7 +43,9 @@ async function joinRoom() {
   if (!doc.exists) return alert("Room not found!");
   
   mySymbol = "O";
-  await roomRef.update({ players: firebase.firestore.FieldValue.arrayUnion("O") });
+  await roomRef.update({
+    "players.O": myName
+  });
   startGame();
 }
 
@@ -132,4 +134,5 @@ function checkWinner(board) {
   }
   return board.includes("") ? null : "Draw";
 }
+
 
