@@ -20,6 +20,7 @@ let myName = null;
 async function createRoom() {
   roomId = document.getElementById("roomCode").value || Math.random().toString(36).substring(2, 8);
   myName = document.getElementById("playerName").value || "Player X";
+  console.log(myName);
   mySymbol = "X";
   await db.collection("rooms").doc(roomId).set({
     board: Array(9).fill(""),
@@ -134,5 +135,6 @@ function checkWinner(board) {
   }
   return board.includes("") ? null : "Draw";
 }
+
 
 
