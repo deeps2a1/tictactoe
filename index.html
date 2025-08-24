@@ -9,6 +9,7 @@
   <h1>Multiplayer Tic Tac Toe</h1>
 
   <div id="room-section">
+    <input id="playerName" placeholder="Enter Your Name">
     <input id="roomCode" placeholder="Enter Room Code">
     <button onclick="createRoom()">Create Room</button>
     <button onclick="joinRoom()">Join Room</button>
@@ -27,6 +28,7 @@
   </div>
 
   <p id="status"></p>
+  <button id="restartBtn" class="hidden" onclick="restartGame()">Restart Game</button>
 
   <!-- Firebase v8 (namespaced SDK, works with firebase.) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -36,4 +38,5 @@
   <script src="script.js"></script>
 </body>
 </html>
+
 
