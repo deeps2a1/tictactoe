@@ -14,15 +14,20 @@ const db = firebase.firestore();
 // ✅ 2. Global State
 let roomId = null;
 let mySymbol = null;
+let myName = null;
 
 // ✅ 3. Create Room
 async function createRoom() {
   roomId = document.getElementById("roomCode").value || Math.random().toString(36).substring(2, 8);
+  myName = document.getElementById("playerName").value || "Player X";
   mySymbol = "X";
   await db.collection("rooms").doc(roomId).set({
     board: Array(9).fill(""),
     turn: "X",
-    players: ["X"],
+    players: {
+      X: myName,
+      O: null
+    },
     winner: null
   });
   startGame();
@@ -31,6 +36,7 @@ async function createRoom() {
 // ✅ 4. Join Room
 async function joinRoom() {
   roomId = document.getElementById("roomCode").value;
+  myName = document.getElementById("playerName").value || "Player O";
   if (!roomId) return alert("Enter a room code!");
   const roomRef = db.collection("rooms").doc(roomId);
   const doc = await roomRef.get();
@@ -39,6 +45,17 @@ async function joinRoom() {
   mySymbol = "O";
   await roomRef.update({ players: firebase.firestore.FieldValue.arrayUnion("O") });
   startGame();
+}
+
+// ✅ Restart Game
+async function restartGame() {
+  const roomRef = db.collection("rooms").doc(roomId);
+  await roomRef.update({
+    board: Array(9).fill(""),
+    turn: "X",
+    winner: null
+  });
+  document.getElementById("restartBtn").classList.add("hidden");
 }
 
 // ✅ 5. Game Setup
@@ -50,13 +67,27 @@ function startGame() {
     if (!doc.exists) return;
     const data = doc.data();
     renderBoard(data.board);
-    updateStatus(data.turn, data.winner);
+    updateStatus(data.turn, data.winner, data.players);
   });
 
   document.querySelectorAll(".cell").forEach(cell => {
     cell.addEventListener("click", () => makeMove(cell.dataset.index));
   });
 }
+
+// ✅ Update Status
+function updateStatus(turn, winner, players) {
+  const status = document.getElementById("status");
+  if (winner) {
+    status.textContent = winner === "Draw" ? "It's a Draw!" : `${players[winner]} (${winner}) Wins!`;
+    document.getElementById("restartBtn").classList.remove("hidden");
+  } else {
+    status.textContent = `Turn: ${players[turn] || turn} (${turn})`;
+  }
+}
+
+
+ 
 
 // ✅ 6. Make Move
 async function makeMove(index) {
@@ -87,16 +118,6 @@ function renderBoard(board) {
   });
 }
 
-// ✅ 8. Status Update
-function updateStatus(turn, winner) {
-  const status = document.getElementById("status");
-  if (winner) {
-    status.textContent = winner === "Draw" ? "It's a Draw!" : `Player ${winner} Wins!`;
-  } else {
-    status.textContent = `Player ${turn}'s turn`;
-  }
-}
-
 // ✅ 9. Winner Check
 function checkWinner(board) {
   const combos = [
@@ -111,3 +132,4 @@ function checkWinner(board) {
   }
   return board.includes("") ? null : "Draw";
 }
+
